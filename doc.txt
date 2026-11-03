@@ -1,0 +1,71 @@
+Program 6: Deploy an Automated Build Pipeline using Docker Hub & GHCR
+
+Step 1: Initialize Git in your project folder
+
+Navigate to your project directory and initialize a local Git repository:
+
+cd ~/Devops/labs/program6
+git init
+
+
+Step 2: Build the Docker Image
+
+Build your local container image from the Dockerfile present in your project directory:
+
+docker build -t program-6 .
+
+
+Step 3: Tag and Push Image to Docker Hub
+
+Replace Mubashirfree with your Docker Hub username if different:
+
+# Tag the image for Docker Hub
+docker tag program-6 Mubashirfree/program-6:latest
+
+# Log into Docker Hub (enter password when prompted)
+docker login -u Mubashirfree
+
+# Push the image to Docker Hub
+docker push Mubashirfree/program-6:latest
+
+
+Step 4: Tag and Push Image to GitHub Container Registry (GHCR)
+
+Replace Mubashirfree with your GitHub username:
+
+# Tag the image for GHCR
+docker tag program-6 ghcr.io/Mubashirfree/program-6:latest
+
+# Log into GHCR (paste your GitHub PAT when prompted for password)
+docker login ghcr.io -u Mubashirfree
+
+# Push the image to GHCR
+docker push ghcr.io/Mubashirfree/program-6:latest
+
+
+Step 5: Link Local Project to Remote GitHub Repository
+
+Set the remote origin URL for your GitHub repository:
+
+git remote add origin https://github.com/Mubashirfree/demo_lab06.git
+
+
+(If origin already exists, use this instead:)
+
+git remote set-url origin https://github.com/Mubashirfree/demo_lab06.git
+
+
+Step 6: Stage, Commit, and Push Source Code to GitHub
+
+# Stage all project files
+git add .
+
+# Create the initial commit snapshot
+git commit -m "Initial commit"
+
+# Rename current branch to main
+git branch -M main
+
+# Push the source code to GitHub
+git push -u origin main
+
