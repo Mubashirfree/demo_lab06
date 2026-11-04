@@ -1,0 +1,221 @@
+# PROGRAM 5 – DEMONSTRATE CI INTEGRATION BY RUNNING JENKINS IN A DOCKER CONTAINER
+
+## 1. Aim
+
+To demonstrate Continuous Integration (CI) by deploying and running Jenkins inside a Docker container. This setup shows how Docker simplifies Jenkins installation and enables automated build and integration workflows.
+
+## 2. Software Requirements
+
+- Docker
+- Docker Compose
+- Ubuntu/Linux terminal
+- Web browser
+
+## 3. Project Structure
+
+```text
+program5/
+│
+├── Dockerfile
+│
+└── docker-compose.yml
+```
+
+## 4. Procedure
+
+### Step 1: Ensure Docker service is running
+
+Check Docker and Docker Compose versions.
+
+```bash
+docker --version
+docker compose version
+```
+
+Check whether Docker is running:
+
+```bash
+docker info
+```
+
+### Step 2: Create Project Structure
+
+Create a directory named program5 and enter it.
+
+```bash
+mkdir program5
+cd program5
+```
+
+### Step 3: Create a Dockerfile
+
+Create a file named Dockerfile.
+
+```bash
+nano Dockerfile
+```
+
+Add the following contents:
+
+```dockerfile
+FROM jenkins/jenkins:lts
+
+# Switch to root user to install tools
+USER root
+
+# Install Docker inside Jenkins container
+RUN apt-get update && apt-get install -y docker.io
+
+# Switch back to Jenkins user
+USER jenkins
+```
+
+Save the file using Ctrl + O, Enter and Ctrl + X.
+
+**Explanation:**
+
+- FROM: Uses the Jenkins LTS image as the base image.
+- USER root: Switches to the root user to obtain administrator permissions.
+- RUN: Updates package information and installs Docker.
+- USER jenkins: Switches back to the normal Jenkins user.
+
+### Step 4: Create docker-compose.yml
+
+Create a file named docker-compose.yml.
+
+```bash
+nano docker-compose.yml
+```
+
+Add the following contents:
+
+```yaml
+services:
+  jenkins:
+    build: .
+    container_name: jenkins-ci
+
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+
+volumes:
+  jenkins_home:
+```
+
+Save the file using Ctrl + O, Enter and Ctrl + X.
+
+**Explanation:**
+
+- services: Defines the services to run.
+- jenkins: Defines the Jenkins service.
+- build: . tells Docker Compose to find the Dockerfile in the current directory and build the image.
+- container_name: Assigns the container name jenkins-ci.
+- ports: Maps host ports to container ports.
+- 8080:8080 allows access to the Jenkins web interface.
+- 50000:50000 is used for Jenkins inbound agent communication.
+- jenkins_home:/var/jenkins_home stores Jenkins data persistently.
+- /var/run/docker.sock:/var/run/docker.sock allows Jenkins to communicate with the host Docker engine.
+- volumes: Declares the named Docker volume.
+
+**Note:** YAML indentation must use spaces, not tabs. Always leave a space after the colon and after list markers (-).
+
+### Step 5: Build and Run Jenkins
+
+Validate the Docker Compose configuration:
+
+```bash
+docker compose config
+```
+
+Build the image and start Jenkins in detached mode.
+
+```bash
+docker compose up --build -d
+```
+
+**Explanation:**
+
+- docker compose: Uses Docker Compose.
+- up: Creates and starts the container.
+- --build: Builds the Docker image before starting.
+- -d: Runs the container in detached mode (background).
+
+Check whether the container is running:
+
+```bash
+docker ps
+```
+
+### Step 6: Test Jenkins
+
+Open the browser and enter:
+
+```text
+http://localhost:8080
+```
+
+To obtain the initial Jenkins administrator password, execute:
+
+```bash
+docker exec -it jenkins-ci cat /var/jenkins_home/secrets/initialAdminPassword
+```
+
+Copy the displayed password and enter it on the Jenkins setup page.
+
+Follow the instructions to install the suggested plugins and create an administrator account.
+
+**Explanation:**
+
+Jenkins is accessed through port 8080. The Docker container runs Jenkins, and the browser provides access to its web interface.
+
+### Step 7: List and Delete Docker Images
+
+List all Docker images:
+
+```bash
+docker images
+```
+
+Delete the custom Jenkins image after stopping and removing the container:
+
+```bash
+docker compose down
+docker image rm program5-jenkins:latest
+```
+
+**Note:** The generated image name may differ. Check `docker images` and use the exact repository name and tag shown there.
+
+The named volume jenkins_home is preserved when using docker compose down without -v.
+
+Do not use `docker compose down -v` unless you want to delete the persistent Jenkins data.
+
+## 5. Result
+
+Jenkins was successfully deployed and executed inside a Docker container. The Jenkins web interface was accessed through localhost:8080, demonstrating the integration of Jenkins with Docker for Continuous Integration.
+
+## 6. Important Docker Commands Used
+
+| Command | Purpose |
+|---|---|
+| docker --version | Checks Docker version |
+| docker compose version | Checks Docker Compose version |
+| mkdir | Creates a directory |
+| cd | Changes directory |
+| nano | Creates or edits a file |
+| docker compose config | Validates Compose configuration |
+| docker compose up --build -d | Builds and starts containers |
+| docker ps | Lists running containers |
+| docker logs jenkins-ci | Displays Jenkins logs |
+| docker exec | Executes commands inside a container |
+| docker images | Lists Docker images |
+| docker compose down | Stops and removes Compose containers and networks |
+| docker image rm | Removes a Docker image |
+
+## 7. Conclusion
+
+Thus, Continuous Integration was demonstrated by deploying Jenkins inside a Docker container. Docker Compose was used to configure the Jenkins service, ports and volumes, while Docker socket mounting enabled Jenkins to communicate with the host Docker engine.
